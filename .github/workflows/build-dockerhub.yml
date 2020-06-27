@@ -1,0 +1,29 @@
+name: Criando o colocando a imagem no Docker Hub
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonando repositorio
+      uses: actions/checkout@v2
+      
+    - name: Login do DockerHub
+      uses: Azure/docker-login@v1
+      with:
+        username: ${{ secrets.LOGIN_DOCKERHUB }}
+        password: ${{ secrets.SENHA_DOCKERHUB }}
+      
+    - name: Criando e subindo a a imagem do docker
+      run: |
+        docker build . --file Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
+        docker tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER ${{ secrets.NOME_IMAGEM }}:latest
+        docker push ${{ secrets.NOME_IMAGEM }}
